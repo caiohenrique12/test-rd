@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe PaymentLinks::Creator do
   describe ".call" do
-    subject(:payment_link) { described_class.call(account:, description:, amount_cents:, currency:) }
+    subject(:result) { described_class.call(account:, description:, amount_cents:, currency:) }
 
     let(:account) { create(:account, id: "loja-abc") }
     let(:description) { "Consultoria 1 hora" }
@@ -15,6 +15,9 @@ RSpec.describe PaymentLinks::Creator do
     end
 
     it "persists an active link for the account" do
+      payment_link = result.payment_link
+
+      expect(result).to be_success
       expect(payment_link).to be_persisted
       expect(payment_link.account).to eq(account)
       expect(payment_link.status).to eq("active")
@@ -23,12 +26,38 @@ RSpec.describe PaymentLinks::Creator do
       expect(payment_link.currency).to eq("BRL")
     end
 
-    it "builds an opaque public id from the url token" do
-      expect(payment_link.public_id).to eq("pl_#{url_token}")
-      expect(payment_link.url_token).to eq(url_token)
-      expect(payment_link.url_token).not_to eq(account.id)
-      expect(payment_link.url_token).not_to eq("token-loja-abc")
-      expect(payment_link.public_url).to eq("https://pay.example.com/c/#{url_token}")
+    it "returns the created link as the success response" do
+      expect(result.as_json).to eq(
+        id: "pl_#{url_token}",
+        account_id: "loja-abc",
+        status: "active",
+        description: "Consultoria 1 hora",
+        amount: 15_000,
+        currency: "BRL",
+        url: "https://pay.example.com/c/#{url_token}"
+      )
+      expect(result.payment_link.url_token).to eq(url_token)
+      expect(result.payment_link.url_token).not_to eq(account.id)
+    end
+
+    context "when the amount is not positive" do
+      let(:amount_cents) { 0 }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "O valor deve ser maior que zero")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
+
+    context "when the description is blank" do
+      let(:description) { "" }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "A descrição é obrigatória")
+        expect(PaymentLink.count).to eq(0)
+      end
     end
   end
 end

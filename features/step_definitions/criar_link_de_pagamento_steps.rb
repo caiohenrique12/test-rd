@@ -2,11 +2,11 @@ require "bigdecimal"
 require "digest"
 
 Before do
-  connection = ActiveRecord::Base.connection
+  clear_payment_link_tables
+end
 
-  PaymentLink.delete_all if connection.data_source_exists?("payment_links")
-  AccessToken.delete_all if connection.data_source_exists?("access_tokens")
-  Account.delete_all if connection.data_source_exists?("accounts")
+After do
+  clear_payment_link_tables
 end
 
 Given("que o produto de pagamentos aceita a moeda {string}") do |currency|
@@ -115,6 +115,18 @@ Then("não vaza existência ou dados da conta {string}") do |account_id|
   expect(last_response.body).not_to include(account_id)
 end
 
+def clear_payment_link_tables
+  connection = ActiveRecord::Base.connection
+
+  PaymentLink.delete_all if connection.data_source_exists?("payment_links")
+  AccessToken.delete_all if connection.data_source_exists?("access_tokens")
+  Account.delete_all if connection.data_source_exists?("accounts")
+end
+
+def credentialed_account?
+  @credentialed != false
+end
+
 def remember_authenticated_account(account_id)
   @account_id = account_id
   @raw_token = "token-#{account_id}"
@@ -125,9 +137,9 @@ def amount_cents(valor)
 end
 
 def post_payment_link(account_id:, description:, amount:, currency:)
-  if @credentialed == true
-    account = Account.find_or_create_by!(id: @account_id) { |record| record.credentialed = true }
-    account.update!(credentialed: true)
+  if @account_id.present?
+    account = Account.find_or_create_by!(id: @account_id) { |record| record.credentialed = credentialed_account? }
+    account.update!(credentialed: credentialed_account?)
     AccessToken.find_or_create_by!(token_digest: Digest::SHA256.hexdigest(@raw_token)) do |access_token|
       access_token.account = account
     end

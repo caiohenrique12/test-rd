@@ -13,30 +13,47 @@ RSpec.describe Authentication::Bearer do
     end
 
     it "returns the account when the digest, account, and credential match" do
-      expect(result).to eq(account)
+      expect(result).to be_success
+      expect(result.account).to eq(account)
+    end
+
+    context "when the token is missing" do
+      let(:raw_token) { "" }
+
+      it "refuses before creation" do
+        expect(result).not_to be_success
+        expect(result.status).to eq(:unauthorized)
+        expect(result.message).to eq("Não autorizado")
+      end
     end
 
     context "when the digest does not match" do
       let(:raw_token) { "wrong-token" }
 
-      it "returns nil" do
-        expect(result).to be_nil
+      it "refuses before creation" do
+        expect(result).not_to be_success
+        expect(result.status).to eq(:unauthorized)
       end
     end
 
     context "when the account id differs" do
       let(:account_id) { "loja-xyz" }
 
-      it "returns nil" do
-        expect(result).to be_nil
+      it "refuses without naming the other account" do
+        expect(result).not_to be_success
+        expect(result.status).to eq(:forbidden)
+        expect(result.message).to eq("Não autorizado")
+        expect(result.message).not_to include("loja-xyz")
       end
     end
 
     context "when the account is not credentialed" do
       let(:account) { create(:account, :uncredentialed, id: "loja-abc") }
 
-      it "returns nil" do
-        expect(result).to be_nil
+      it "refuses with the credential message" do
+        expect(result).not_to be_success
+        expect(result.status).to eq(:forbidden)
+        expect(result.message).to eq("A conta precisa estar credenciada")
       end
     end
   end
