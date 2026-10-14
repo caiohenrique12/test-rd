@@ -46,7 +46,21 @@ curl -f http://localhost:3000/status
 
 A resposta saudável tem `status` `ok` e `checks.postgres` e `checks.redis` em `ok`.
 
-### 5. Rodar a suíte
+### 5. Abrir a documentação da API
+
+Com a stack no ar, abra a UI no navegador:
+
+http://localhost:3000/api-docs
+
+O JSON OpenAPI fica em http://localhost:3000/api-docs/v1/swagger.json. Ele descreve `GET /up`, `GET /status` e `POST /accounts/{account_id}/payment_links`.
+
+Esses endereços existem no servidor local (development). Para regenerar o arquivo `swagger/v1/swagger.json`:
+
+```bash
+docker compose run --rm web bundle exec rake rswag:specs:swaggerize
+```
+
+### 6. Rodar a suíte
 
 A stack já está no ar (`exec`). O entrypoint prepara o banco de test quando o comando é RSpec ou Cucumber.
 
@@ -57,7 +71,7 @@ docker compose exec web bundle exec cucumber
 
 Equivalentes: `make tests` e `make cucumber`.
 
-### 6. Console e shell
+### 7. Console e shell
 
 ```bash
 docker compose exec web bin/rails console
@@ -66,7 +80,7 @@ make bash
 
 `make bash` executa `docker compose exec web bash`. O console não dispara `db:prepare`; o banco já foi preparado na subida do servidor.
 
-### 7. Derrubar
+### 8. Derrubar
 
 ```bash
 docker compose down
