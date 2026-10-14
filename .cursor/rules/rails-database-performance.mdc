@@ -1,0 +1,42 @@
+---
+name: Rails Database & Performance
+description: ActiveRecord best practices, database optimization, and performance guidelines
+globs: ["app/models/**/*.rb", "db/**/*.rb"]
+alwaysApply: false
+---
+
+# Rails Database & Performance
+
+## ActiveRecord Best Practices
+- Use ActiveRecord effectively for database operations
+- Use database indexing effectively
+- Follow Rails naming conventions for models and associations
+
+## Query Optimization
+- Use eager loading to avoid N+1 queries
+- Optimize database queries using `includes`, `joins`, or `select`
+- Use `find_each` for large datasets instead of `find`
+
+## Caching Strategies
+- Implement fragment caching for expensive operations
+- Use Russian Doll caching for nested data
+- Cache frequently accessed data at appropriate levels
+
+## Examples
+```ruby
+# Good: Eager loading to avoid N+1
+users = User.includes(:posts, :comments)
+
+# Good: Selective loading
+User.select(:id, :name, :email).where(active: true)
+
+# Good: Batch processing
+User.find_each(batch_size: 1000) do |user|
+  user.process_data
+end
+
+# Good: Fragment caching
+cache("user_#{user.id}_#{user.updated_at.to_i}") do
+  render user
+end
+```

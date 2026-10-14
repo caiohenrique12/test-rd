@@ -1,0 +1,44 @@
+---
+name: Rails Security
+description: Security best practices for authentication, authorization, and vulnerability prevention
+globs: ["app/controllers/**/*.rb", "app/policies/**/*.rb"]
+alwaysApply: false
+---
+
+# Rails Security Guidelines
+
+## Authentication & Authorization
+- Implement proper authentication and authorization (e.g., Devise, Pundit)
+- Use strong parameters in controllers
+- Validate user permissions before sensitive operations
+
+## Common Vulnerabilities
+- Protect against XSS using Rails' built-in helpers
+- Prevent CSRF attacks with `protect_from_forgery`
+- Avoid SQL injection using parameterized queries
+- Sanitize user input appropriately
+
+## Error Handling
+- Handle errors gracefully without exposing sensitive information
+- Log security events appropriately
+- Display user-friendly error messages
+
+## Examples
+```ruby
+# Good: Strong parameters
+def user_params
+  params.require(:user).permit(:name, :email, :role)
+end
+
+# Good: Authorization check
+def show
+  @user = User.find(params[:id])
+  authorize @user
+end
+
+# Good: Safe query
+User.where("name ILIKE ?", "%#{params[:search]}%")
+
+# Good: XSS protection in views
+<%= sanitize(user_content) %>
+```

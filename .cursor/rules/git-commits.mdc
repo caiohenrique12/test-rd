@@ -1,0 +1,46 @@
+---
+description: Semantic Conventional Commits for every commit message and pull request title
+alwaysApply: true
+---
+
+# Semantic commits and pull request titles
+
+Every commit subject and every pull request title uses [Conventional Commits](https://www.conventionalcommits.org/).
+
+```
+<type>(<optional-scope>): <imperative description>
+```
+
+## Types
+
+| Type | Use for |
+|------|---------|
+| `feat` | A user-facing feature |
+| `fix` | A bug fix |
+| `docs` | Documentation only |
+| `style` | Formatting only, no behavior change |
+| `refactor` | Restructure with no behavior change |
+| `perf` | A performance improvement |
+| `test` | Tests only |
+| `build` | Dependencies or the build |
+| `ci` | CI configuration |
+| `chore` | Maintenance that is none of the above |
+| `revert` | Reverting a previous commit |
+
+## Rules
+
+- Lowercase type. Optional scope in parentheses, lowercase (`feat(checkout): …`).
+- Imperative description, no trailing period, under 72 characters.
+- Blank line before a body or footer. Put issue links in the footer (`Fixes #123`), not in the subject.
+- Pull request titles use the same subject line. The PR body still carries `Fixes #<N>` or `Refs #<N>`.
+- One concern per commit. A breaking change adds `!` after the type or scope (`feat!: …`) and a `BREAKING CHANGE:` footer.
+
+```
+feat(checkout): require a configurable minimum order amount
+
+Fixes #403
+```
+
+```
+fix: drop the extra limit validation on additional groups
+```

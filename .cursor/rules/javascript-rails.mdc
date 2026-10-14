@@ -1,0 +1,485 @@
+---
+name: Expert JavaScript for Rails
+description: Advanced JavaScript patterns, performance optimization, and expert-level Rails integration
+globs: ["app/javascript/**/*.js", "app/assets/javascripts/**/*.js"]
+alwaysApply: false
+---
+
+# Expert JavaScript for Rails Applications
+
+## Modern JavaScript & ES2023+ Features
+- Leverage latest JavaScript features: optional chaining, nullish coalescing, private fields
+- Use advanced destructuring patterns and parameter defaults
+- Implement proper async/await patterns with error boundaries
+- Apply functional programming principles: immutability, pure functions, composition
+- Use modern array methods: `flatMap`, `groupBy`, `at()`, `findLast()`
+
+## Advanced Stimulus Architecture
+- Implement inheritance and mixins for Stimulus controllers
+- Use dependency injection patterns for testable controllers
+- Create higher-order controllers and decorators
+- Implement proper lifecycle management and cleanup
+- Use TypeScript for type safety in complex controllers
+
+## Performance & Memory Management
+- Implement proper event listener cleanup to prevent memory leaks
+- Use efficient DOM querying strategies and caching
+- Apply debouncing/throttling for expensive operations
+- Optimize bundle splitting and lazy loading
+- Monitor and profile JavaScript performance
+
+## Error Handling & Debugging
+- Implement comprehensive error boundaries and logging
+- Use proper error propagation and recovery strategies
+- Apply defensive programming techniques
+- Implement feature detection and graceful degradation
+- Use advanced debugging techniques and tooling
+
+## Testing & Quality Assurance
+- Write unit tests for JavaScript modules and controllers
+- Implement integration tests for Stimulus controllers
+- Use test-driven development (TDD) practices
+- Apply static analysis and linting for code quality
+- Implement end-to-end testing for critical user flows
+
+## Advanced Examples
+
+### Expert Stimulus Controller with Inheritance & Mixins
+```javascript
+import { Controller } from "@hotwired/stimulus"
+
+// Base controller with common functionality
+class BaseController extends Controller {
+  #abortController = new AbortController()
+  #observers = new Set()
+
+  connect() {
+    this.setupErrorBoundary()
+    this.initializeController()
+  }
+
+  disconnect() {
+    this.cleanup()
+  }
+
+  // Template method pattern
+  initializeController() {
+    // Override in subclasses
+  }
+
+  // Private method for cleanup
+  cleanup() {
+    this.#abortController.abort()
+    this.#observers.forEach(observer => observer.disconnect())
+    this.#observers.clear()
+  }
+
+  // Error boundary
+  setupErrorBoundary() {
+    window.addEventListener('error', this.handleGlobalError.bind(this), {
+      signal: this.#abortController.signal
+    })
+  }
+
+  handleGlobalError(event) {
+    console.error('Controller error:', event.error)
+    this.notifyError?.(event.error)
+  }
+
+  // Utility for safe DOM operations
+  safeQuerySelector(selector, context = this.element) {
+    const element = context?.querySelector(selector)
+    if (!element) {
+      console.warn(`Element not found: ${selector}`)
+    }
+    return element
+  }
+}
+
+// Mixin for API functionality
+const ApiMixin = {
+  async makeRequest(url, options = {}) {
+    const { timeout = 5000, retries = 3, ...fetchOptions } = options
+    
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+    
+    try {
+      const response = await this.retryOperation(
+        () => fetch(url, {
+          ...fetchOptions,
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': this.csrfToken,
+            ...fetchOptions.headers
+          }
+        }),
+        retries
+      )
+      
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      
+      return await response.json()
+    } catch (error) {
+      clearTimeout(timeoutId)
+      this.handleApiError(error)
+      throw error
+    }
+  },
+
+  async retryOperation(operation, retries, delay = 1000) {
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await operation()
+      } catch (error) {
+        if (i === retries) throw error
+        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)))
+      }
+    }
+  },
+
+  get csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content ?? ''
+  }
+}
+
+// Advanced controller using inheritance and mixins
+export default class FormController extends BaseController {
+  static targets = ["form", "submit", "errors"]
+  static classes = ["loading", "error", "success", "disabled"]
+  static values = { 
+    url: String,
+    method: { type: String, default: "POST" },
+    timeout: { type: Number, default: 10000 },
+    debounceTime: { type: Number, default: 300 }
+  }
+
+  initialize() {
+    // Mixin composition
+    Object.assign(this, ApiMixin)
+    this.debouncedValidate = this.debounce(this.validateForm.bind(this), this.debounceTimeValue)
+  }
+
+  initializeController() {
+    this.setupFormValidation()
+    this.setupAutoSave()
+  }
+
+  setupFormValidation() {
+    this.formTarget.addEventListener('input', this.debouncedValidate, {
+      passive: true
+    })
+  }
+
+  async submit(event) {
+    event.preventDefault()
+    
+    if (!this.isFormValid()) return
+    
+    const formData = new FormData(this.formTarget)
+    const data = Object.fromEntries(formData.entries())
+    
+    try {
+      this.setLoadingState(true)
+      const result = await this.makeRequest(this.urlValue, {
+        method: this.methodValue,
+        body: JSON.stringify(data),
+        timeout: this.timeoutValue
+      })
+      
+      await this.handleSuccess(result)
+    } catch (error) {
+      this.handleError(error)
+    } finally {
+      this.setLoadingState(false)
+    }
+  }
+
+  // Advanced utility methods
+  debounce(func, wait) {
+    let timeout
+    return (...args) => {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => func.apply(this, args), wait)
+    }
+  }
+
+  setLoadingState(loading) {
+    this.element.classList.toggle(this.loadingClass, loading)
+    this.submitTarget.disabled = loading
+  }
+}
+```
+
+### Modern JavaScript Patterns & ES2023+ Features
+```javascript
+// Private fields and methods
+class UserService {
+  #apiClient
+  #cache = new Map()
+  
+  constructor(apiClient) {
+    this.#apiClient = apiClient
+  }
+  
+  // Public method
+  async getUser(id) {
+    return this.#cache.get(id) ?? await this.#fetchUser(id)
+  }
+  
+  // Private method
+  async #fetchUser(id) {
+    const user = await this.#apiClient.get(`/users/${id}`)
+    this.#cache.set(id, user)
+    return user
+  }
+}
+
+// Advanced destructuring and optional chaining
+const processApiResponse = (response) => {
+  const {
+    data: {
+      users = [],
+      meta: { total = 0, page = 1 } = {},
+      ...restData
+    } = {},
+    errors = null
+  } = response ?? {}
+  
+  // Nullish coalescing and optional chaining
+  const activeUsers = users
+    .filter(user => user?.status === 'active')
+    .map(({ id, name, email, profile = {} }) => ({
+      id,
+      name,
+      email,
+      avatar: profile?.avatar?.url ?? '/default-avatar.png',
+      lastSeen: profile?.lastSeen?.toISOString?.() ?? null
+    }))
+  
+  return { activeUsers, total, page, errors }
+}
+
+// Functional composition and currying
+const pipe = (...fns) => (value) => fns.reduce((acc, fn) => fn(acc), value)
+const curry = (fn) => (...args) => 
+  args.length >= fn.length ? fn(...args) : curry(fn.bind(null, ...args))
+
+const validateField = curry((rules, value) => 
+  rules.every(rule => rule(value))
+)
+
+const required = (value) => value != null && value !== ''
+const minLength = (min) => (value) => value?.length >= min
+const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+// Usage
+const validateEmail = validateField([required, isEmail])
+const validatePassword = validateField([required, minLength(8)])
+
+const processUserForm = pipe(
+  (formData) => Object.fromEntries(new FormData(formData)),
+  (data) => ({
+    ...data,
+    emailValid: validateEmail(data.email),
+    passwordValid: validatePassword(data.password)
+  }),
+  (data) => data.emailValid && data.passwordValid ? data : null
+)
+```
+
+### Performance Optimization & Memory Management
+```javascript
+// Efficient DOM operations with caching
+class DOMManager {
+  #cache = new WeakMap()
+  #observer = new IntersectionObserver(this.#handleIntersection.bind(this))
+  
+  queryCached(selector, context = document) {
+    if (!this.#cache.has(context)) {
+      this.#cache.set(context, new Map())
+    }
+    
+    const contextCache = this.#cache.get(context)
+    if (!contextCache.has(selector)) {
+      contextCache.set(selector, context.querySelector(selector))
+    }
+    
+    return contextCache.get(selector)
+  }
+  
+  // Virtualized list for large datasets
+  createVirtualList(container, items, renderItem, itemHeight = 50) {
+    const visibleCount = Math.ceil(container.clientHeight / itemHeight)
+    let startIndex = 0
+    
+    const render = () => {
+      const endIndex = Math.min(startIndex + visibleCount, items.length)
+      const fragment = document.createDocumentFragment()
+      
+      for (let i = startIndex; i < endIndex; i++) {
+        const item = renderItem(items[i], i)
+        fragment.appendChild(item)
+      }
+      
+      container.innerHTML = ''
+      container.appendChild(fragment)
+    }
+    
+    const handleScroll = this.throttle(() => {
+      startIndex = Math.floor(container.scrollTop / itemHeight)
+      render()
+    }, 16) // 60fps
+    
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    render()
+    
+    return () => container.removeEventListener('scroll', handleScroll)
+  }
+  
+  throttle(func, limit) {
+    let inThrottle
+    return (...args) => {
+      if (!inThrottle) {
+        func.apply(this, args)
+        inThrottle = true
+        setTimeout(() => inThrottle = false, limit)
+      }
+    }
+  }
+}
+
+// Advanced async patterns with proper error handling
+class AsyncOperationManager {
+  #operations = new Map()
+  
+  async withRetry(operation, maxRetries = 3, backoffMs = 1000) {
+    let lastError
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation()
+      } catch (error) {
+        lastError = error
+        
+        if (attempt < maxRetries) {
+          const delay = backoffMs * Math.pow(2, attempt)
+          await new Promise(resolve => setTimeout(resolve, delay))
+        }
+      }
+    }
+    
+    throw lastError
+  }
+  
+  async withTimeout(operation, timeoutMs = 5000) {
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
+    )
+    
+    return Promise.race([operation(), timeout])
+  }
+  
+  // Circuit breaker pattern
+  createCircuitBreaker(operation, threshold = 5, resetTimeMs = 60000) {
+    let failures = 0
+    let isOpen = false
+    let nextAttempt = Date.now()
+    
+    return async (...args) => {
+      if (isOpen && Date.now() < nextAttempt) {
+        throw new Error('Circuit breaker is open')
+      }
+      
+      try {
+        const result = await operation(...args)
+        failures = 0
+        isOpen = false
+        return result
+      } catch (error) {
+        failures++
+        
+        if (failures >= threshold) {
+          isOpen = true
+          nextAttempt = Date.now() + resetTimeMs
+        }
+        
+        throw error
+      }
+    }
+  }
+}
+```
+
+### Testing Patterns for JavaScript
+```javascript
+// Test utilities for Stimulus controllers
+export class StimulusTestUtils {
+  static async createController(ControllerClass, html = '', values = {}) {
+    const fixture = document.createElement('div')
+    fixture.innerHTML = html
+    document.body.appendChild(fixture)
+    
+    const element = fixture.firstElementChild || fixture
+    
+    // Set values
+    Object.entries(values).forEach(([key, value]) => {
+      element.dataset[`${ControllerClass.identifier}${key.charAt(0).toUpperCase() + key.slice(1)}Value`] = 
+        typeof value === 'object' ? JSON.stringify(value) : value
+    })
+    
+    const application = Application.start()
+    application.register(ControllerClass.identifier, ControllerClass)
+    
+    await new Promise(resolve => setTimeout(resolve, 0)) // Wait for connection
+    
+    const controller = application.getControllerForElementAndIdentifier(element, ControllerClass.identifier)
+    
+    return {
+      controller,
+      element,
+      cleanup: () => {
+        application.stop()
+        document.body.removeChild(fixture)
+      }
+    }
+  }
+}
+
+// Example test
+describe('FormController', () => {
+  let controller, element, cleanup
+  
+  beforeEach(async () => {
+    const setup = await StimulusTestUtils.createController(
+      FormController,
+      '<form data-controller="form"><input type="text" name="name"></form>',
+      { url: '/api/submit' }
+    )
+    
+    controller = setup.controller
+    element = setup.element
+    cleanup = setup.cleanup
+  })
+  
+  afterEach(() => {
+    cleanup()
+  })
+  
+  it('validates form input', async () => {
+    const input = element.querySelector('input')
+    input.value = 'test'
+    input.dispatchEvent(new Event('input'))
+    
+    // Wait for debounced validation
+    await new Promise(resolve => setTimeout(resolve, 400))
+    
+    expect(controller.isFormValid()).toBe(true)
+  })
+})
+```

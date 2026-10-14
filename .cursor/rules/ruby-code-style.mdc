@@ -1,0 +1,41 @@
+---
+name: Ruby Code Style & Structure
+description: Ruby coding conventions, style guidelines, and code organization
+globs: ["**/*.rb"]
+alwaysApply: false
+---
+
+# Ruby Code Style & Structure
+
+## Code Organization
+- Follow Rails conventions and MVC patterns
+- Use `snake_case` for file names, method names, and variables
+- Use `CamelCase` for class and module names
+- Structure files according to Rails conventions (models, controllers, views, concerns, helpers)
+
+## Ruby Syntax & Style
+- Follow the [Ruby Style Guide](https://rubystyle.guide/)
+- Use Ruby's expressive syntax: `unless`, `||=`, `&.`
+- Prefer single quotes for strings unless interpolation is needed
+- Use descriptive variable and method names (e.g., `user_signed_in?`, `calculate_total`)
+
+## Object-Oriented Patterns
+- Write concise, idiomatic Ruby code
+- Use object-oriented and functional programming patterns as appropriate
+- Prefer iteration and modularization over code duplication
+- Use concerns for shared behavior across models or controllers
+
+## Examples
+```ruby
+# Good: Descriptive method names
+def user_signed_in?
+  current_user.present?
+end
+
+# Good: Ruby expressive syntax
+user ||= User.find(params[:id])
+user&.activate!
+
+# Good: Single quotes when no interpolation
+flash[:notice] = 'User successfully created'
+```

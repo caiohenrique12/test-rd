@@ -1,0 +1,30 @@
+---
+description: Service object conventions for business logic
+globs: app/services/**/*.rb,spec/services/**/*.rb
+alwaysApply: false
+---
+
+# Service Object Conventions
+
+- Single public method: `#call`; class shortcut: `self.call(...)` via `ApplicationService`.
+- Namespace by domain: `Orders::Creator`, `WaitlistEntries::Approve`.
+- Multi-step or failure-prone flows → return a Result (`Struct` or `Data.define` with `success?`).
+- Simple flows may return the record or `nil`; never raise for expected business failures.
+- Inject dependencies via constructor for testability.
+- Wrap multi-model writes in `ActiveRecord::Base.transaction`.
+- Test success and failure paths; use `subject(:result)` when returning Result objects.
+
+```ruby
+# Pattern
+module Domain
+  class Action < ApplicationService
+    def initialize(record)
+      @record = record
+    end
+
+    def call
+      # ...
+    end
+  end
+end
+```

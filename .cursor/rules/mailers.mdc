@@ -1,0 +1,13 @@
+---
+description: ActionMailer conventions
+globs: app/mailers/**/*.rb,app/views/**/*_mailer/**/*.erb,spec/mailers/**/*.rb
+alwaysApply: false
+---
+
+# Mailer Conventions
+
+- Provide HTML and text templates when both formats are used in production.
+- Use `deliver_later` (Sidekiq), not `deliver_now` in controllers.
+- Mailer previews in `spec/mailers/previews/`.
+- Test with `have_enqueued_mail(MailerClass, :method_name)`.
+- Keep mailers thin — formatting in presenters; from address via `MailerDefaultFrom` when applicable.

@@ -1,0 +1,24 @@
+---
+description: Database migration conventions
+globs: db/migrate/**/*.rb,db/schema.rb
+alwaysApply: false
+---
+
+# Migration Conventions
+
+- Prefer reversible `change` over separate `up`/`down`.
+- `null: false` for required columns; DB defaults where appropriate.
+- Index foreign keys and frequently queried columns.
+- Unique indexes for uniqueness validations.
+- `references` with `foreign_key: true` for associations.
+- Never edit a migration that has already run — create a new one.
+- Zero-downtime: add column → backfill → add constraint.
+
+## schema.rb — migrations only (hard rule)
+
+- **Never hand-edit** [`db/schema.rb`](db/schema.rb) (no direct Write/StrReplace/patch).
+- Schema changes come **only** from running migrations in Docker, e.g.
+  `docker compose exec web bin/rails db:migrate` (also updates test DB when needed).
+- After migrate, review `git diff db/schema.rb` and keep **only** changes produced by that dump for the migration you ran. Do not invent columns or version bumps by editing the file.
+- If `db:migrate` dumps unrelated tables, do **not** hand-author schema — ask before committing noise, or discard only unrelated dump hunks while keeping migrate output for your migration.
+- Skill: `.cursor/skills/rails-schema-via-migrations/SKILL.md`

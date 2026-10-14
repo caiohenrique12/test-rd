@@ -1,0 +1,16 @@
+---
+description: Query object conventions for complex read-only queries
+globs: app/queries/**/*.rb,spec/queries/**/*.rb
+alwaysApply: false
+---
+
+# Query Object Conventions
+
+- One query concern per class; public method `#call`.
+- Accept context via constructor (e.g. `store:` for multi-tenant scoping).
+- Return `ActiveRecord::Relation` for chainability, or `Hash` for aggregations.
+- Always `includes` / `preload` / `eager_load` to prevent N+1.
+- Read-only — never modify data in query objects.
+- Sanitize user input: `sanitize_sql_like`, parameterized queries.
+- One-liner filters stay as model scopes; extract when joins or aggregations appear.
+- Test store isolation: store A cannot see store B data.

@@ -1,0 +1,31 @@
+---
+description: Core development principles — how to plan, implement, and change code
+alwaysApply: true
+---
+
+# Development Principles
+
+## How to work
+
+- **TDD first** — failing spec before production code per slice; red → green → refactor.
+- **Rails way** — MVC, REST, existing gestor patterns; no extra layers unless the slice needs them.
+- **Small pieces** — vertical slices, shippable independently.
+- **Think before coding** — state assumptions; ask when uncertain; surface tradeoffs.
+- **Simplicity first** — minimum code that solves the problem; no speculative features or abstractions.
+- **Surgical changes** — touch only what the request requires; match existing style; don't refactor unrelated code.
+- **Verifiable goals** — define success criteria up front (e.g. "spec fails, then passes").
+
+## Architecture principles
+
+- **KISS / YAGNI** — standard CRUD until complexity demands extraction.
+- **SRP** — models persist; controllers orchestrate HTTP; services hold business logic; views display.
+- **Skinny everything** — delegate beyond simple CRUD to services; keep models thin.
+- **Callbacks** — only for data normalization (`before_validation`, `before_save`). Side effects (emails, jobs, APIs) belong in services.
+- **Explicit over implicit** — named service calls over hidden callback chains.
+- **No premature abstraction** — extract after 3+ concrete repetitions, not on the first case.
+
+## Quality gates
+
+- Run RuboCop on touched Ruby: `docker compose exec web bundle exec rubocop`
+- Co-locate tests with the layer changed (`spec/models`, `spec/requests`, `spec/services`, etc.)
+- Smallest diff that solves the problem; no unrelated edits.

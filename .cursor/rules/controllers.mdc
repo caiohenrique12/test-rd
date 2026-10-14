@@ -1,0 +1,17 @@
+---
+description: Controller conventions for thin RESTful orchestration
+globs: app/controllers/**/*.rb,spec/requests/**/*.rb
+alwaysApply: false
+---
+
+# Controller Conventions
+
+- Keep controllers thin: orchestrate HTTP, don't implement business logic.
+- Delegate beyond simple CRUD to service objects (`ApplicationService` subclasses).
+- `authorize` with Pundit on every action; use `policy_scope(Model)` for index queries.
+- Strong parameters: `params.require(:x).permit(...)`.
+- View formatting → presenters (`app/presenters/`), not controllers.
+- REST actions: index, show, new, create, edit, update, destroy.
+- Hotwire: `respond_to` with `format.html` and `format.turbo_stream` where needed.
+- Test with **request specs** in `spec/requests/`, not controller specs.
+- Cover authentication, authorization (404/redirect for unauthorized), valid and invalid params.

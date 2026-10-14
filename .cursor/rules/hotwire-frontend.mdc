@@ -1,0 +1,81 @@
+---
+name: Hotwire & Frontend
+description: Hotwire integration, Tailwind CSS styling, and Rails frontend architecture
+globs: ["app/views/**/*.erb", "app/assets/**/*.css"]
+alwaysApply: false
+---
+
+# Hotwire & Frontend Development
+
+## Hotwire Integration
+- Use **Hotwire** (Turbo and Stimulus) for dynamic, SPA-like interactions
+- Leverage Turbo Streams for real-time updates without full page reloads
+- Structure HTML for optimal Turbo Frame and Stream updates
+
+## Tailwind CSS
+- Implement responsive design with **Tailwind CSS**
+- Use utility-first approach for styling
+- Follow mobile-first responsive design principles
+
+## Rails Views
+- Use Rails view helpers and partials to keep views DRY
+- Structure templates logically with proper partials
+- Use `turbo_frame_tag` and `turbo_stream_from` appropriately
+
+## Gestor submit loaders
+- Use `Buttons::SubmitLoaderComponent` for primary mutating submits (save / continue / confirm)
+- The component ships `data-controller="submit-loader"` and a hidden spinner; no layout-level wiring
+- Skip search / GET forms; keep custom loaders (CSV validate, freight map) as-is
+
+## Gestor link loaders
+- Use `Buttons::LinkLoaderComponent` for primary navigation CTAs (Ver / Editar / Novo / Voltar / Cancelar)
+- The component ships `data-controller="link-loader"` and a hidden spinner; clears on `turbo:load`
+- Skip side nav, breadcrumbs, and plain text/table name links unless they are button-styled actions
+
+## Loading skeletons
+- Use `Skeletons::Component` for loading placeholders (daisyUI-style `.skeleton` / `.skeleton-text`)
+- Variants: `:block`, `:circle`, `:avatar`, `:card`, `:text`, `:table`, `:page` — or pass a custom block
+- Prefer `store_lazy_skeleton_frame` on gestor CRUD index/show/form pages (lazy Turbo Frame + skeleton)
+- Lazy CRUD frames use `target: "_top"` so Ver/Editar links do full-page Turbo Drive visits
+- Skip the lazy frame when re-rendering forms with validation errors
+- Do not replace button/link loaders with page skeletons
+
+## Examples
+
+### Turbo Integration
+```erb
+<!-- Good: Turbo Frame for partial updates -->
+<%= turbo_frame_tag "user_#{user.id}" do %>
+  <%= render 'user_card', user: user %>
+<% end %>
+
+<!-- Good: Turbo Stream updates -->
+<%= turbo_stream_from current_user, "notifications" %>
+
+<!-- Good: Form with Turbo -->
+<%= form_with model: @user, data: { turbo_frame: "user_form" } do |f| %>
+  <!-- form content -->
+<% end %>
+```
+
+### Tailwind CSS Patterns
+```erb
+<!-- Good: Responsive design with utility classes -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <% @products.each do |product| %>
+    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+      <%= image_tag product.image, class: "w-full h-48 object-cover rounded-md mb-4" %>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= product.name %></h3>
+    </div>
+  <% end %>
+</div>
+```
+
+```css
+/* Good: Component-based styling */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+```

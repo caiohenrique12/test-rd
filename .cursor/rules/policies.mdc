@@ -1,0 +1,15 @@
+---
+description: Pundit authorization policy conventions
+globs: app/policies/**/*.rb,spec/policies/**/*.rb
+alwaysApply: false
+---
+
+# Pundit Policy Conventions
+
+- One policy per model: `app/policies/entity_policy.rb`.
+- Default deny via `ApplicationPolicy`; allow only explicitly.
+- Define a `Scope` class for `policy_scope` (store/multi-tenant filtering).
+- Inherit from `ApplicationPolicy`.
+- Controllers call `authorize @resource` on every action.
+- Index actions use `policy_scope(Model)`, not `Model.all`.
+- Test every action for each relevant role (admin, gestor, visitor).

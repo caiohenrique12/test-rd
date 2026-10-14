@@ -1,0 +1,16 @@
+---
+description: Background job conventions with Sidekiq
+globs: app/jobs/**/*.rb,spec/jobs/**/*.rb
+alwaysApply: false
+---
+
+# Background Job Conventions
+
+- Use **Sidekiq** (Redis-backed).
+- Jobs must be **idempotent** — safe to retry.
+- Pass IDs, not full ActiveRecord objects.
+- `discard_on ActiveRecord::RecordNotFound` for deleted records.
+- `retry_on` with specific exceptions and limits.
+- One job, one responsibility; delegate heavy logic to services.
+- Test with `have_enqueued_job` matcher.
+- Prefer `deliver_later` over `deliver_now` for mail from request cycle.

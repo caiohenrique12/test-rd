@@ -1,0 +1,22 @@
+---
+description: RSpec testing conventions — TDD, Better Specs, FactoryBot
+globs: spec/**/*.rb
+alwaysApply: false
+---
+
+# Testing Conventions
+
+- **TDD**: RED (failing spec) → GREEN (minimal code) → REFACTOR.
+- Run specs via Docker: `make tests` or `docker compose exec web bundle exec rspec`.
+- Follow [Better Specs](https://www.betterspecs.org/): precise `describe`, `context` with *when/with/without*, short `it` descriptions.
+- One behavior per `it`; prefer `expect(...).to` over `should`.
+- `let` by default; `let!` only when records must exist before the example.
+- `build` over `create` when persistence isn't needed.
+- Request specs (`spec/requests/`) over controller specs.
+- Test authentication **and** authorization in request specs.
+- Shoulda Matchers for model validations and associations.
+- **RSpec = backend only** — models, services, policies, jobs, queries, and
+  request/API behavior. Do not write view specs or assert rendered HTML in RSpec.
+- **Views and UI** — partials, ERB, Turbo streams, Stimulus, and user-visible
+  flows are tested in `spec/e2e` (Playwright); see `AGENTS.md` for E2E rules.
+- Run RuboCop after substantive spec edits: `docker compose exec web bundle exec rubocop`.

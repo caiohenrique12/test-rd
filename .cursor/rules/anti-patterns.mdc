@@ -1,0 +1,16 @@
+---
+description: Rails anti-patterns to avoid in app and spec code
+globs: app/**/*.rb,spec/**/*.rb
+alwaysApply: false
+---
+
+# Anti-Patterns to Avoid
+
+- **God Model** — over ~200 lines, extract business logic to services and complex reads to query objects.
+- **Service Graveyard** — don't wrap trivial CRUD. `record.update!(name: params[:name])` is fine inline.
+- **Callback Spaghetti** — never chain `after_create`/`after_save` for emails, jobs, APIs, or related records.
+- **Fat Controller** — no business logic, calculations, or multi-model orchestration in controllers.
+- **N+1 Ignorance** — eager-load associations you will access (`includes`, `preload`). Use `strict_loading` in dev when practical.
+- **Kitchen Sink Concern** — concerns must be narrow (`SoftDeletable`, `Sluggable`). Over ~30 lines → consider a service.
+- **STI Abuse** — if many columns are subtype-specific, prefer polymorphic associations with separate tables.
+- **Magic in views** — no business logic in ERB; use presenters or ViewComponents for formatting.

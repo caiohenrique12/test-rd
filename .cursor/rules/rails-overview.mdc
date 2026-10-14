@@ -1,0 +1,56 @@
+---
+description: Index of all Cursor development rules for this Rails project
+alwaysApply: false
+---
+
+# Rails Development Rules Index
+
+Development standards live in `.cursor/rules/`. Layer rules load automatically when you edit matching files.
+
+## Always-on
+
+| Rule | Purpose |
+|------|---------|
+| `development-principles` | TDD, simplicity, surgical changes, architecture principles |
+| `git-commits` | Conventional Commits for commit messages and pull request titles |
+
+## Layer rules (path-scoped)
+
+| Rule | Applies to |
+|------|------------|
+| `models` | `app/models/`, `spec/models/`, `spec/factories/` |
+| `controllers` | `app/controllers/`, `spec/requests/` |
+| `services` | `app/services/`, `spec/services/` |
+| `queries` | `app/queries/`, `spec/queries/` |
+| `policies` | `app/policies/`, `spec/policies/` |
+| `jobs` | `app/jobs/`, `spec/jobs/` |
+| `mailers` | `app/mailers/`, mailer views, `spec/mailers/` |
+| `migrations` | `db/migrate/`, `db/schema.rb` |
+| `views` | `app/views/`, `app/components/`, `app/presenters/` |
+| `testing` | `spec/**` (RSpec + Better Specs) |
+| `anti-patterns` | `app/**/*.rb`, `spec/**/*.rb` |
+
+## Topic rules
+
+| Rule | Applies to |
+|------|------------|
+| `ruby-code-style` | `**/*.rb` |
+| `rails-database-performance` | `app/models/`, `db/` |
+| `rails-security` | `app/controllers/`, `app/policies/` |
+| `hotwire-frontend` | `app/views/`, `app/assets/` |
+| `javascript-rails` | `app/javascript/` |
+
+## Skills (on-demand workflows)
+
+| Skill | When to use |
+|-------|-------------|
+| `implement` | Implement a GitHub issue (rules-first → plan → RSpec TDD → Playwright E2E) |
+| `code-review-rails` | PR/code review with optional fix workflow |
+| `browser-verify-changes` | Manual browser QA of UI changes |
+| `rails-schema-via-migrations` | Never hand-edit `db/schema.rb`; update only via Docker migrations |
+
+## Project ops
+
+Docker-only CLI, Playwright E2E, and agent workflow → `AGENTS.md`.
+
+Reference rules in chat with `@rule-name` (e.g. `@models`, `@services`).

@@ -1,0 +1,17 @@
+---
+description: View, ViewComponent, and presenter conventions
+globs: app/views/**/*.erb,app/components/**/*.rb,app/components/**/*.erb,app/presenters/**/*.rb,spec/components/**/*.rb,spec/presenters/**/*.rb
+alwaysApply: false
+---
+
+# View & Component Conventions
+
+- Reusable UI → ViewComponents (`app/components/`) over partials when logic or reuse warrants it.
+- Formatting logic → presenters (`app/presenters/`), not views or controllers.
+- No business logic in ERB — presenters and components handle display concerns.
+- Turbo Frames for partial updates; Turbo Streams for multi-target updates.
+- Stimulus for client behavior — minimal JS, progressive enhancement.
+- Tailwind utility classes for styling.
+- Include ARIA attributes for accessibility (WCAG 2.1 AA).
+
+See also `@hotwire-frontend` for Turbo/Stimulus/Tailwind patterns.
