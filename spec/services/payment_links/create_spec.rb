@@ -50,6 +50,36 @@ RSpec.describe PaymentLinks::Creator do
       end
     end
 
+    context "when the amount is negative" do
+      let(:amount_cents) { -100 }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "O valor deve ser maior que zero")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
+
+    context "when the amount is not an integer" do
+      let(:amount_cents) { 15.5 }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "O valor deve ser maior que zero")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
+
+    context "when the currency is not BRL" do
+      let(:currency) { "USD" }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "A moeda não é suportada")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
+
     context "when the description is blank" do
       let(:description) { "" }
 

@@ -31,6 +31,17 @@ Funcionalidade: Criar um link de pagamento
     E não persiste link
     E informa que o valor deve ser maior que zero
 
+  Cenário: Moeda não suportada não gera link
+    Dado que o lojista da conta "loja-abc" está autenticado
+    E a conta "loja-abc" está credenciada para receber
+    Quando ele solicita um link de pagamento com:
+      | descrição | Consultoria 1 hora |
+      | valor     | 150.00             |
+      | moeda     | USD                |
+    Então o sistema recusa a criação
+    E não persiste link
+    E informa que a moeda não é suportada
+
   Cenário: Descrição vazia não gera link
     Dado que o lojista da conta "loja-abc" está autenticado
     E a conta "loja-abc" está credenciada para receber

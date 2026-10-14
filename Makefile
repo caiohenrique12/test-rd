@@ -1,4 +1,4 @@
-.PHONY: build up down restart bash tests cucumber
+.PHONY: build up down restart bash tests cucumber ci
 
 build:
 	docker compose build
@@ -20,3 +20,6 @@ tests:
 
 cucumber:
 	docker compose exec web bundle exec cucumber
+
+ci:
+	./bin/ci

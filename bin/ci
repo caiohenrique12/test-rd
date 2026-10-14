@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Run the RSpec and Cucumber suites in the web container and print a summary.
+# Invoke from the repository root: ./bin/ci
+set -uo pipefail
+
+cd "$(dirname "$0")/.."
+
+rspec_log="$(mktemp)"
+cucumber_log="$(mktemp)"
+trap 'rm -f "$rspec_log" "$cucumber_log"' EXIT
+
+run_suite() {
+  local log="$1"
+  shift
+
+  "$@" 2>&1 | tee "$log"
+  return "${PIPESTATUS[0]}"
+}
+
+summary_line() {
+  local pattern="$1"
+  local log="$2"
+  grep -E "$pattern" "$log" | tail -n 1
+}
+
+echo "== RSpec =="
+run_suite "$rspec_log" docker compose run --rm -T web bundle exec rspec
+rspec_status=$?
+echo
+
+echo "== Cucumber =="
+run_suite "$cucumber_log" docker compose run --rm -T web bundle exec cucumber
+cucumber_status=$?
+echo
+
+rspec_summary="$(summary_line "[0-9]+ examples?, [0-9]+ failures?" "$rspec_log")"
+rspec_coverage="$(summary_line "Line [Cc]overage|below the expected minimum coverage" "$rspec_log")"
+cucumber_summary="$(summary_line "^[0-9]+ scenarios? \\(" "$cucumber_log")"
+cucumber_steps="$(summary_line "^[0-9]+ steps? \\(" "$cucumber_log")"
+
+[[ -n "$rspec_summary" ]] || rspec_summary="no RSpec summary (exit ${rspec_status})"
+[[ -n "$cucumber_summary" ]] || cucumber_summary="no Cucumber summary (exit ${cucumber_status})"
+
+echo "== Summary =="
+if [[ "$rspec_status" -eq 0 ]]; then
+  echo "RSpec:    passed — ${rspec_summary}"
+else
+  echo "RSpec:    failed — ${rspec_summary}"
+fi
+if [[ -n "$rspec_coverage" ]]; then
+  echo "          ${rspec_coverage}"
+fi
+
+if [[ "$cucumber_status" -eq 0 ]]; then
+  echo "Cucumber: passed — ${cucumber_summary}"
+else
+  echo "Cucumber: failed — ${cucumber_summary}"
+fi
+if [[ -n "$cucumber_steps" ]]; then
+  echo "          ${cucumber_steps}"
+fi
+
+if [[ "$rspec_status" -eq 0 && "$cucumber_status" -eq 0 ]]; then
+  echo "Result:   passed"
+  exit 0
+fi
+
+echo "Result:   failed"
+exit 1

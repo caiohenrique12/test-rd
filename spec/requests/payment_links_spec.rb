@@ -117,6 +117,66 @@ RSpec.describe "POST /accounts/:account_id/payment_links" do
     end
   end
 
+  context "when the amount is negative" do
+    it "responds with unprocessable entity" do
+      account = create(:account, id: "loja-abc")
+      create(:access_token, account:, raw_token: "token-loja-abc")
+
+      post "/accounts/loja-abc/payment_links",
+        params: {
+          description: "Consultoria 1 hora",
+          amount: -100,
+          currency: "BRL"
+        },
+        headers: { "Authorization" => "Bearer token-loja-abc" },
+        as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["error"]).to eq("O valor deve ser maior que zero")
+      expect(PaymentLink.count).to eq(0)
+    end
+  end
+
+  context "when the amount is not an integer" do
+    it "responds with unprocessable entity" do
+      account = create(:account, id: "loja-abc")
+      create(:access_token, account:, raw_token: "token-loja-abc")
+
+      post "/accounts/loja-abc/payment_links",
+        params: {
+          description: "Consultoria 1 hora",
+          amount: 15.5,
+          currency: "BRL"
+        },
+        headers: { "Authorization" => "Bearer token-loja-abc" },
+        as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["error"]).to eq("O valor deve ser maior que zero")
+      expect(PaymentLink.count).to eq(0)
+    end
+  end
+
+  context "when the currency is not supported" do
+    it "responds with unprocessable entity" do
+      account = create(:account, id: "loja-abc")
+      create(:access_token, account:, raw_token: "token-loja-abc")
+
+      post "/accounts/loja-abc/payment_links",
+        params: {
+          description: "Consultoria 1 hora",
+          amount: 15_000,
+          currency: "USD"
+        },
+        headers: { "Authorization" => "Bearer token-loja-abc" },
+        as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["error"]).to eq("A moeda não é suportada")
+      expect(PaymentLink.count).to eq(0)
+    end
+  end
+
   context "when the description is blank" do
     it "responds with unprocessable entity" do
       account = create(:account, id: "loja-abc")
