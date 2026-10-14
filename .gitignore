@@ -34,3 +34,6 @@
 # Written by the Cucumber rerun profile.
 /rerun.txt
 
+# SimpleCov HTML and result sets.
+/coverage
+
