@@ -6,31 +6,70 @@ A documentação do produto, os modelos C4, o diagrama de dados, o contrato HTTP
 
 ## Ambiente local
 
-O caminho oficial é Docker Compose (`compose.yaml`): API, PostgreSQL e Redis.
+### 1. Pré-requisitos
+
+Docker e Docker Compose. Não é preciso Ruby, PostgreSQL ou Redis na máquina. O `curl` do passo 4 é só a verificação no host.
+
+### 2. Clonar
+
+```bash
+git clone https://github.com/caiohenrique12/test-rd.git
+cd test-rd
+```
+
+### 3. Subir a stack
+
+Há dois caminhos equivalentes.
+
+No primeiro plano, com build. Os comandos seguintes precisam de outro terminal:
 
 ```bash
 docker compose up --build
+```
+
+Pelo Makefile, em segundo plano. `make up` sozinho não constrói a imagem (`docker compose up -d`):
+
+```bash
+make build
+make up
+```
+
+As gems entram na imagem no build; a subida do container não roda o Bundler. O entrypoint (`bin/docker-entrypoint`) prepara o banco quando o servidor sobe (`db:prepare` em development e em test, porque o comando do Compose é `./bin/rails server`).
+
+### 4. Conferir a saúde
+
+Espere o healthcheck do serviço `web` e, no host, rode:
+
+```bash
+curl -f http://localhost:3000/status
+```
+
+A resposta saudável tem `status` `ok` e `checks.postgres` e `checks.redis` em `ok`.
+
+### 5. Rodar a suíte
+
+A stack já está no ar (`exec`). O entrypoint prepara o banco de test quando o comando é RSpec ou Cucumber.
+
+```bash
+docker compose exec web bundle exec rspec
+docker compose exec web bundle exec cucumber
+```
+
+Equivalentes: `make tests` e `make cucumber`.
+
+### 6. Console e shell
+
+```bash
+docker compose exec web bin/rails console
+make bash
+```
+
+`make bash` executa `docker compose exec web bash`. O console não dispara `db:prepare`; o banco já foi preparado na subida do servidor.
+
+### 7. Derrubar
+
+```bash
 docker compose down
 ```
 
-Com a stack no ar, prepare o banco e abra o console:
-
-```bash
-docker compose exec web bin/rails db:prepare
-docker compose exec web bin/rails console
-```
-
-## Testes
-
-`bin/rails test` e `bundle exec rspec` executam a mesma suíte em `spec/`. Use `run` para subir as dependências e rodar os testes; use `exec` quando a stack já estiver no ar.
-
-```bash
-docker compose run --rm web bin/rails test
-docker compose exec web bundle exec rspec
-```
-
-O aceite de criar o link de pagamento é Cucumber:
-
-```bash
-docker compose run --rm web bundle exec cucumber
-```
+`make down` é o mesmo comando (`docker compose down`).
