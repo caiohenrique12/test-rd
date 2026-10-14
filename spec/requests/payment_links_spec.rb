@@ -196,4 +196,43 @@ RSpec.describe "POST /accounts/:account_id/payment_links" do
       expect(PaymentLink.count).to eq(0)
     end
   end
+
+  context "when the description is only spaces" do
+    it "responds with unprocessable entity" do
+      account = create(:account, id: "loja-abc")
+      create(:access_token, account:, raw_token: "token-loja-abc")
+
+      post "/accounts/loja-abc/payment_links",
+        params: {
+          description: "   ",
+          amount: 15_000,
+          currency: "BRL"
+        },
+        headers: { "Authorization" => "Bearer token-loja-abc" },
+        as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["error"]).to eq("A descrição é obrigatória")
+      expect(PaymentLink.count).to eq(0)
+    end
+  end
+
+  context "when the description is missing" do
+    it "responds with unprocessable entity" do
+      account = create(:account, id: "loja-abc")
+      create(:access_token, account:, raw_token: "token-loja-abc")
+
+      post "/accounts/loja-abc/payment_links",
+        params: {
+          amount: 15_000,
+          currency: "BRL"
+        },
+        headers: { "Authorization" => "Bearer token-loja-abc" },
+        as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["error"]).to eq("A descrição é obrigatória")
+      expect(PaymentLink.count).to eq(0)
+    end
+  end
 end

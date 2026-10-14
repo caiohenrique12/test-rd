@@ -50,6 +50,33 @@ RSpec.describe PaymentLink do
         expect(payment_link.errors[:base]).to include("A moeda não é suportada")
       end
     end
+
+    context "when the description is blank" do
+      subject(:payment_link) { build(:payment_link, description: "") }
+
+      it "is invalid" do
+        expect(payment_link).not_to be_valid
+        expect(payment_link.errors[:base]).to include("A descrição é obrigatória")
+      end
+    end
+
+    context "when the description is only spaces" do
+      subject(:payment_link) { build(:payment_link, description: "   ") }
+
+      it "is invalid" do
+        expect(payment_link).not_to be_valid
+        expect(payment_link.errors[:base]).to include("A descrição é obrigatória")
+      end
+    end
+
+    context "when the description is missing" do
+      subject(:payment_link) { build(:payment_link, description: nil) }
+
+      it "is invalid" do
+        expect(payment_link).not_to be_valid
+        expect(payment_link.errors[:base]).to include("A descrição é obrigatória")
+      end
+    end
   end
 
   describe "status" do
