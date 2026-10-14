@@ -1,4 +1,13 @@
 require "bigdecimal"
+require "digest"
+
+Before do
+  connection = ActiveRecord::Base.connection
+
+  PaymentLink.delete_all if connection.data_source_exists?("payment_links")
+  AccessToken.delete_all if connection.data_source_exists?("access_tokens")
+  Account.delete_all if connection.data_source_exists?("accounts")
+end
 
 Given("que o produto de pagamentos aceita a moeda {string}") do |currency|
   @accepted_currency = currency
@@ -116,7 +125,14 @@ def amount_cents(valor)
 end
 
 def post_payment_link(account_id:, description:, amount:, currency:)
-  # The header sends the raw token. Later issues persist its SHA-256 digest.
+  if @credentialed == true
+    account = Account.find_or_create_by!(id: @account_id) { |record| record.credentialed = true }
+    account.update!(credentialed: true)
+    AccessToken.find_or_create_by!(token_digest: Digest::SHA256.hexdigest(@raw_token)) do |access_token|
+      access_token.account = account
+    end
+  end
+
   header "Authorization", "Bearer #{@raw_token}"
   header "Content-Type", "application/json"
   post "/accounts/#{account_id}/payment_links", { description:, amount:, currency: }.to_json
