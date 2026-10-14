@@ -38,6 +38,24 @@ RSpec.describe "POST /accounts/:account_id/payment_links" do
     expect(response.parsed_body["id"]).to eq("pl_#{payment_link.url_token}")
   end
 
+  context "when the authorization header is missing" do
+    it "responds with unauthorized and does not create a link" do
+      create(:account, id: "loja-abc")
+
+      post "/accounts/loja-abc/payment_links",
+        params: {
+          description: "Consultoria 1 hora",
+          amount: 15_000,
+          currency: "BRL"
+        },
+        as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(response.parsed_body["error"]).to eq("Não autorizado")
+      expect(PaymentLink.count).to eq(0)
+    end
+  end
+
   context "when the bearer is unknown" do
     it "responds with unauthorized and does not create a link" do
       create(:account, id: "loja-abc")
@@ -74,6 +92,9 @@ RSpec.describe "POST /accounts/:account_id/payment_links" do
       expect(response).to have_http_status(:forbidden)
       expect(response.body).not_to include("loja-xyz")
       expect(PaymentLink.count).to eq(0)
+      response.headers.each do |name, value|
+        expect("#{name} #{Array(value).join}").not_to include("loja-xyz")
+      end
     end
   end
 
