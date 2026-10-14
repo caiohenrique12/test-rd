@@ -27,7 +27,7 @@ O lojista chama `POST /accounts/{account_id}/payment_links` com descrição, val
 - `GET /status` consulta Postgres e Redis.
 - `compose.yaml` descreve os serviços `web`, `db` e `redis`.
 - Não há modelo de conta, token nem link de pagamento.
-- `test/integration/payment_links_test.rb` é um rascunho em Minitest. A fonte executável do caso de uso passa a ser o Cucumber, na issue 2 da [sprint](sprint.md).
+- A especificação executável é `features/criar_link_de_pagamento.feature`.
 
 ## Próxima fatia
 

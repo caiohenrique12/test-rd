@@ -28,3 +28,9 @@ docker compose exec web bin/rails console
 docker compose run --rm web bin/rails test
 docker compose exec web bundle exec rspec
 ```
+
+O aceite de criar o link de pagamento é Cucumber:
+
+```bash
+docker compose run --rm web bundle exec cucumber
+```
