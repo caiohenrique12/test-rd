@@ -89,5 +89,25 @@ RSpec.describe PaymentLinks::Creator do
         expect(PaymentLink.count).to eq(0)
       end
     end
+
+    context "when the description is only spaces" do
+      let(:description) { "   " }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "A descrição é obrigatória")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
+
+    context "when the description is missing" do
+      let(:description) { nil }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "A descrição é obrigatória")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
   end
 end
