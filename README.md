@@ -6,10 +6,25 @@ A documentação do produto, os modelos C4, o diagrama de dados, o contrato HTTP
 
 ## Ambiente local
 
-O caminho oficial é Docker Compose (`compose.yaml`): API, PostgreSQL e Redis. O primeiro pull request da sprint fecha os comandos e a verificação de `GET /status`.
+O caminho oficial é Docker Compose (`compose.yaml`): API, PostgreSQL e Redis.
+
+```bash
+docker compose up --build
+docker compose down
+```
+
+Com a stack no ar, prepare o banco e abra o console:
+
+```bash
+docker compose exec web bin/rails db:prepare
+docker compose exec web bin/rails console
+```
 
 ## Testes
 
-```
-docker compose run --rm web bundle exec rspec
+`bin/rails test` e `bundle exec rspec` executam a mesma suíte em `spec/`. Use `run` para subir as dependências e rodar os testes; use `exec` quando a stack já estiver no ar.
+
+```bash
+docker compose run --rm web bin/rails test
+docker compose exec web bundle exec rspec
 ```
