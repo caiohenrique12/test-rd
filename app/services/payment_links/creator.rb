@@ -30,6 +30,7 @@ module PaymentLinks
     def call
       return failure("O valor deve ser maior que zero") unless positive_amount?
       return failure("A descrição é obrigatória") if description.to_s.strip.empty?
+      return failure("A descrição deve ter no máximo #{PaymentLink::DESCRIPTION_MAX_LENGTH} caracteres") if description_too_long?
       return failure("A moeda não é suportada") unless currency == "BRL"
 
       url_token = SecureRandom.hex(16)
@@ -51,6 +52,10 @@ module PaymentLinks
 
     def positive_amount?
       amount_cents.is_a?(Integer) && amount_cents.positive?
+    end
+
+    def description_too_long?
+      description.to_s.strip.length > PaymentLink::DESCRIPTION_MAX_LENGTH
     end
 
     def failure(error)

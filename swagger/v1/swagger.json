@@ -172,6 +172,11 @@
                       "error": "A descrição é obrigatória"
                     }
                   },
+                  "description_too_long": {
+                    "value": {
+                      "error": "A descrição deve ter no máximo 140 caracteres"
+                    }
+                  },
                   "currency": {
                     "value": {
                       "error": "A moeda não é suportada"
@@ -200,7 +205,8 @@
                 "type": "object",
                 "properties": {
                   "description": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 140
                   },
                   "amount": {
                     "type": "integer",

@@ -14,7 +14,7 @@ RSpec.describe "POST /accounts/{account_id}/payment_links", type: :request do
       parameter name: :payment_link, in: :body, required: true, schema: {
         type: :object,
         properties: {
-          description: { type: :string },
+          description: { type: :string, maxLength: PaymentLink::DESCRIPTION_MAX_LENGTH },
           amount: { type: :integer, description: "Amount in cents" },
           currency: { type: :string, enum: [ "BRL" ] }
         },
@@ -151,6 +151,9 @@ RSpec.describe "POST /accounts/{account_id}/payment_links", type: :request do
 
         example "application/json", :amount, { error: "O valor deve ser maior que zero" }
         example "application/json", :description, { error: "A descrição é obrigatória" }
+        example "application/json", :description_too_long, {
+          error: "A descrição deve ter no máximo #{PaymentLink::DESCRIPTION_MAX_LENGTH} caracteres"
+        }
         example "application/json", :currency, { error: "A moeda não é suportada" }
 
         let(:Authorization) { "Bearer token-loja-abc" }
@@ -177,6 +180,18 @@ RSpec.describe "POST /accounts/{account_id}/payment_links", type: :request do
 
           run_test! do |response|
             expect(JSON.parse(response.body)).to eq("error" => "A descrição é obrigatória")
+          end
+        end
+
+        context "when the description is longer than 140 characters" do
+          let(:payment_link) do
+            { description: "a" * 141, amount: 15_000, currency: "BRL" }
+          end
+
+          run_test! do |response|
+            expect(JSON.parse(response.body)).to eq(
+              "error" => "A descrição deve ter no máximo #{PaymentLink::DESCRIPTION_MAX_LENGTH} caracteres"
+            )
           end
         end
 

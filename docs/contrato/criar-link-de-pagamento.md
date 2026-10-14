@@ -18,7 +18,7 @@ Content-Type: application/json
 }
 ```
 
-`amount` é inteiro, em centavos. `150.00` BRL no cenário BDD corresponde a `15000`.
+`amount` é inteiro, em centavos. `150.00` BRL no cenário BDD corresponde a `15000`. `description` é obrigatória e tem no máximo 140 caracteres depois do `strip`; espaços nas pontas são removidos antes de gravar.
 
 ## Resposta `201`
 
@@ -49,6 +49,7 @@ Content-Type: application/json
 | 403 | Token de uma conta usado na URL de outra | Mensagem genérica, sem o id nem dados da outra conta. |
 | 422 | Valor zero, negativo ou não inteiro | O valor deve ser maior que zero. |
 | 422 | Descrição vazia ou só com espaços | A descrição é obrigatória. |
+| 422 | Descrição com mais de 140 caracteres depois do strip | A descrição deve ter no máximo 140 caracteres. |
 | 422 | Moeda diferente de `BRL` | A moeda não é suportada. |
 
 Nenhuma dessas respostas persiste link.
