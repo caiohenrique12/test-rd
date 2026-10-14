@@ -4,20 +4,22 @@ Sete entregas, um pull request por issue, nesta ordem. Cada issue no GitHub traz
 
 A documentação deste diretório entra no commit inicial. Não é uma issue da sprint.
 
-| Ordem | Entrega | Resultado ao mergear |
+| Ordem | Issue | Resultado ao mergear |
 | --- | --- | --- |
-| 1 | Ambiente local com Docker Compose | `docker compose up` sobe API, PostgreSQL e Redis |
-| 2 | Cucumber com a funcionalidade em Gherkin | Os cinco cenários rodam e falham |
-| 3 | Lojista credenciado gera um link ativo | Só esse cenário passa |
-| 4 | Valor zero ou negativo não gera link | O cenário de valor passa; os seguintes seguem vermelhos |
-| 5 | Descrição vazia não gera link | O cenário de descrição passa |
-| 6 | Conta ainda não credenciada não gera link | O cenário de credenciamento passa |
-| 7 | Credenciais de uma conta não criam link em outra | O cenário cruzado passa, e Bearer ausente ou inválido responde 401 |
+| 1 | [#2 — Ambiente local com Docker Compose](https://github.com/caiohenrique12/test-rd/issues/2) | `docker compose up` sobe API, PostgreSQL e Redis |
+| 2 | [#3 — Cucumber com a funcionalidade em Gherkin](https://github.com/caiohenrique12/test-rd/issues/3) | Os cinco cenários rodam e falham |
+| 3 | [#4 — Lojista credenciado gera um link ativo](https://github.com/caiohenrique12/test-rd/issues/4) | Só esse cenário passa |
+| 4 | [#5 — Valor zero ou negativo não gera link](https://github.com/caiohenrique12/test-rd/issues/5) | O cenário de valor passa; os seguintes seguem vermelhos |
+| 5 | [#6 — Descrição vazia não gera link](https://github.com/caiohenrique12/test-rd/issues/6) | O cenário de descrição passa |
+| 6 | [#7 — Conta ainda não credenciada não gera link](https://github.com/caiohenrique12/test-rd/issues/7) | O cenário de credenciamento passa |
+| 7 | [#8 — Credenciais de uma conta não criam link em outra](https://github.com/caiohenrique12/test-rd/issues/8) | O cenário cruzado passa, e Bearer ausente ou inválido responde 401 |
 
 ## Fora da sprint
 
 Página do pagador, cartão, Pix, webhook, rascunho, listagem, edição e desativação do link.
 
-## Issues
+## Pull requests
 
-Os links entram aqui depois que as issues forem abertas no GitHub.
+Cada issue já traz o título, o resumo e o plano de teste do pull request. O PR abre na ordem da tabela, com `Fixes` apontando para a issue, e só depois que o anterior entrou em `main`.
+
+O [pull request #1](https://github.com/caiohenrique12/test-rd/pull/1) é do Dependabot (`image_processing`) e não faz parte desta sprint.
