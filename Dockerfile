@@ -2,7 +2,7 @@
 # check=error=true
 
 # The last stage is the production image. Docker Compose builds the development stage:
-#   docker compose up --build
+#   make build
 #
 # Production:
 #   docker build -t test-rd .
@@ -52,7 +52,7 @@ COPY . .
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
-# Local stack: docker compose up --build
+# Local stack: make build
 # This stage does not inherit the production bundle settings from base.
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS development
 

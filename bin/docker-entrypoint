@@ -3,11 +3,8 @@
 # A restarted container must not reuse a pid from the previous process.
 rm -f tmp/pids/server.pid
 
-# Development installs gems into the image bundle path, which survives the
-# source bind mount. Production gems are already installed in the image.
-if [ "${RAILS_ENV}" != "production" ]; then
-  bundle check || bundle install
-fi
+# Gems are installed into the image by `make build`. Container start does not
+# run Bundler.
 
 for arg in "$@"; do
   if [ "${arg}" = "rspec" ] || [ "${arg}" = "test" ] || [ "${arg}" = "cucumber" ]; then
