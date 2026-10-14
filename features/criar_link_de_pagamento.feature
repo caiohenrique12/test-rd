@@ -53,6 +53,14 @@ Funcionalidade: Criar um link de pagamento
     E não persiste link
     E informa que a descrição é obrigatória
 
+  Cenário: Descrição acima de 140 caracteres não gera link
+    Dado que o lojista da conta "loja-abc" está autenticado
+    E a conta "loja-abc" está credenciada para receber
+    Quando ele solicita um link de pagamento com uma descrição de 141 caracteres
+    Então o sistema recusa a criação
+    E não persiste link
+    E informa que a descrição deve ter no máximo 140 caracteres
+
   Cenário: Conta ainda não credenciada não gera link
     Dado que o lojista da conta "loja-abc" está autenticado
     E a conta "loja-abc" ainda não está credenciada para receber

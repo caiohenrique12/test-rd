@@ -31,6 +31,12 @@ No cross-tenant, a resposta não inclui existência nem dados da outra conta.
 
 Corpo de erro: `{ "error": "..." }`.
 
+## Descrição: até 140 caracteres
+
+A descrição é texto livre curto. O limite é 140 caracteres contados depois do `strip`: exatamente 140 é válido, e 141 responde 422 com `A descrição deve ter no máximo 140 caracteres`, sem persistir link. Espaços nas pontas são removidos antes de gravar. A coluna é `varchar(140)`, o mesmo número da validação, para um texto aceito pela aplicação não estourar o banco.
+
+140 cabe uma linha de descrição no link sem virar um campo de texto longo, e fica alinhado entre a mensagem, o modelo e a coluna.
+
 ## O que não foi decidido aqui
 
-Limite exato do “texto livre curto”, além de descrição obrigatória depois do `strip`. O cenário cobre descrição vazia. O tamanho máximo entra na implementação do cenário de descrição se for necessário para persistir a coluna, e fica registrado no pull request correspondente.
+Nenhum item em aberto nesta fatia.

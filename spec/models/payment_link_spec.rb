@@ -77,6 +77,50 @@ RSpec.describe PaymentLink do
         expect(payment_link.errors[:base]).to include("A descrição é obrigatória")
       end
     end
+
+    context "when the description is 140 characters" do
+      subject(:payment_link) { build(:payment_link, description: "a" * 140) }
+
+      it "is valid" do
+        expect(payment_link).to be_valid
+      end
+    end
+
+    context "when the description is 140 characters with surrounding spaces" do
+      subject(:payment_link) { build(:payment_link, description: " #{"a" * 140} ") }
+
+      it "is valid and stores the stripped description" do
+        expect(payment_link).to be_valid
+        expect(payment_link.description).to eq("a" * 140)
+      end
+    end
+
+    context "when the description is longer than 140 characters" do
+      subject(:payment_link) { build(:payment_link, description: "a" * 141) }
+
+      it "is invalid" do
+        expect(payment_link).not_to be_valid
+        expect(payment_link.errors[:base]).to include("A descrição deve ter no máximo 140 caracteres")
+      end
+    end
+
+    context "when the description is only spaces beyond the limit" do
+      subject(:payment_link) { build(:payment_link, description: " " * 200) }
+
+      it "is invalid because the description is required" do
+        expect(payment_link).not_to be_valid
+        expect(payment_link.errors[:base]).to include("A descrição é obrigatória")
+        expect(payment_link.errors[:base]).not_to include("A descrição deve ter no máximo 140 caracteres")
+      end
+    end
+  end
+
+  describe "description column" do
+    it "rejects a value longer than 140 characters" do
+      payment_link = build(:payment_link, description: "a" * 141)
+
+      expect { payment_link.save(validate: false) }.to raise_error(ActiveRecord::ValueTooLong)
+    end
   end
 
   describe "status" do

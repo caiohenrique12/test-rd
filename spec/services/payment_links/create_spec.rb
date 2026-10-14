@@ -109,5 +109,45 @@ RSpec.describe PaymentLinks::Creator do
         expect(PaymentLink.count).to eq(0)
       end
     end
+
+    context "when the description is 140 characters" do
+      let(:description) { "a" * 140 }
+
+      it "persists a description of 140 characters" do
+        expect(result).to be_success
+        expect(result.payment_link).to be_persisted
+        expect(result.payment_link.description.length).to eq(140)
+      end
+    end
+
+    context "when the description is 140 characters with surrounding spaces" do
+      let(:description) { " #{"a" * 140} " }
+
+      it "persists the stripped description" do
+        expect(result).to be_success
+        expect(result.payment_link).to be_persisted
+        expect(result.payment_link.description).to eq("a" * 140)
+      end
+    end
+
+    context "when the description is longer than 140 characters" do
+      let(:description) { "a" * 141 }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "A descrição deve ter no máximo 140 caracteres")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
+
+    context "when the description is only spaces beyond the limit" do
+      let(:description) { " " * 200 }
+
+      it "refuses and does not persist a link" do
+        expect(result).not_to be_success
+        expect(result.as_json).to eq(error: "A descrição é obrigatória")
+        expect(PaymentLink.count).to eq(0)
+      end
+    end
   end
 end

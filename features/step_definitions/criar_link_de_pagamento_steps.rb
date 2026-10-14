@@ -44,6 +44,15 @@ When("ele solicita um link de pagamento com:") do |table|
   )
 end
 
+When("ele solicita um link de pagamento com uma descrição de {int} caracteres") do |length|
+  post_payment_link(
+    account_id: @account_id,
+    description: "a" * length,
+    amount: amount_cents("150.00"),
+    currency: "BRL"
+  )
+end
+
 When("ele solicita um link de pagamento informando a conta {string}") do |account_id|
   post_payment_link(
     account_id: account_id,
@@ -115,6 +124,11 @@ end
 Then("informa que a descrição é obrigatória") do
   expect(last_response.status).to eq(422)
   expect(json_body["error"]).to include("A descrição é obrigatória")
+end
+
+Then("informa que a descrição deve ter no máximo {int} caracteres") do |max|
+  expect(last_response.status).to eq(422)
+  expect(json_body["error"]).to include("A descrição deve ter no máximo #{max} caracteres")
 end
 
 Then("informa que a conta precisa estar credenciada") do
