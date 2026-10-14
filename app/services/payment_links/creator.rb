@@ -30,6 +30,7 @@ module PaymentLinks
     def call
       return failure("O valor deve ser maior que zero") unless positive_amount?
       return failure("A descrição é obrigatória") if description.to_s.strip.empty?
+      return failure("A moeda não é suportada") unless currency == "BRL"
 
       url_token = SecureRandom.hex(16)
       payment_link = account.payment_links.create!(
@@ -49,7 +50,7 @@ module PaymentLinks
     attr_reader :account, :description, :amount_cents, :currency
 
     def positive_amount?
-      amount_cents.to_i.positive?
+      amount_cents.is_a?(Integer) && amount_cents.positive?
     end
 
     def failure(error)

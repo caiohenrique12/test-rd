@@ -94,6 +94,22 @@ end
 Then("informa que o valor deve ser maior que zero") do
   expect(last_response.status).to eq(422)
   expect(json_body["error"]).to include("O valor deve ser maior que zero")
+
+  post_payment_link(
+    account_id: @account_id,
+    description: "Consultoria 1 hora",
+    amount: amount_cents("-1.00"),
+    currency: "BRL"
+  )
+
+  expect(last_response.status).to eq(422)
+  expect(json_body["error"]).to include("O valor deve ser maior que zero")
+  expect(payment_links_count).to eq(0)
+end
+
+Then("informa que a moeda não é suportada") do
+  expect(last_response.status).to eq(422)
+  expect(json_body["error"]).to include("A moeda não é suportada")
 end
 
 Then("informa que a descrição é obrigatória") do
