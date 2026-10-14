@@ -31,3 +31,6 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Written by the Cucumber rerun profile.
+/rerun.txt
+

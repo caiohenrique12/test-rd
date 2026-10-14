@@ -4,7 +4,7 @@
 
 O caso de uso já está em Gherkin, em português. Os cenários vivem em `features/` e rodam com `cucumber-rails` e Rack::Test. Não há browser: o ator exercita a API.
 
-O arquivo Minitest `test/integration/payment_links_test.rb` deixa de ser a especificação quando o Cucumber entrar.
+A especificação é o Cucumber em `features/criar_link_de_pagamento.feature`. O rascunho Minitest `test/integration/payment_links_test.rb` foi removido.
 
 ## Amount em centavos
 
