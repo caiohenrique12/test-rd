@@ -47,6 +47,12 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "rspec-rails"
   gem "shoulda-matchers"
+
+  gem "rswag-api", "~> 2.17"
+  gem "rswag-specs", "~> 2.17"
+  gem "rswag-ui", "~> 2.17"
+  # rswag-ui 2.17 loads ostruct, which Ruby 4 no longer provides by default.
+  gem "ostruct"
 end
 
 gem "cucumber-rails", "~> 4.1", group: :test, require: false
