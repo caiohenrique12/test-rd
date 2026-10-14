@@ -7,3 +7,9 @@ A documentação do produto, os modelos C4, o diagrama de dados, o contrato HTTP
 ## Ambiente local
 
 O caminho oficial é Docker Compose (`compose.yaml`): API, PostgreSQL e Redis. O primeiro pull request da sprint fecha os comandos e a verificação de `GET /status`.
+
+## Testes
+
+```
+docker compose run --rm web bundle exec rspec
+```
