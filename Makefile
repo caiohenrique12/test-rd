@@ -1,4 +1,4 @@
-.PHONY: build up down restart bash tests
+.PHONY: build up down restart bash tests cucumber
 
 build:
 	docker compose build
@@ -16,4 +16,7 @@ bash:
 	docker compose exec web bash
 
 tests:
-	docker compose run --rm web bundle exec rspec
+	docker compose exec web bundle exec rspec
+
+cucumber:
+	docker compose exec web bundle exec cucumber
