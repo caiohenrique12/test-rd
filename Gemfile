@@ -50,3 +50,4 @@ group :development, :test do
 end
 
 gem "cucumber-rails", "~> 4.1", group: :test, require: false
+gem "simplecov", group: :test, require: false
