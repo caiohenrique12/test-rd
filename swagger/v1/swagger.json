@@ -1,0 +1,423 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API de pagamentos",
+    "version": "v1"
+  },
+  "paths": {
+    "/accounts/{account_id}/payment_links": {
+      "post": {
+        "summary": "creates a payment link",
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "description": "Bearer <raw token>",
+            "example": "Bearer token-loja-abc",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "account_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "example": "loja-abc",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "created": {
+                    "value": {
+                      "id": "pl_8f3a2c",
+                      "account_id": "loja-abc",
+                      "status": "active",
+                      "description": "Consultoria 1 hora",
+                      "amount": 15000,
+                      "currency": "BRL",
+                      "url": "https://pay.example.com/c/8f3a2c"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "account_id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "active"
+                      ]
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "integer",
+                      "description": "Amount in cents"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "BRL"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "account_id",
+                    "status",
+                    "description",
+                    "amount",
+                    "currency",
+                    "url"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missing_authorization": {
+                    "value": {
+                      "error": "Não autorizado"
+                    }
+                  },
+                  "unknown_bearer": {
+                    "value": {
+                      "error": "Não autorizado"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "forbidden",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "uncredentialed": {
+                    "value": {
+                      "error": "A conta precisa estar credenciada"
+                    }
+                  },
+                  "other_account": {
+                    "value": {
+                      "error": "Não autorizado"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "unprocessable entity",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "amount": {
+                    "value": {
+                      "error": "O valor deve ser maior que zero"
+                    }
+                  },
+                  "description": {
+                    "value": {
+                      "error": "A descrição é obrigatória"
+                    }
+                  },
+                  "currency": {
+                    "value": {
+                      "error": "A moeda não é suportada"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "integer",
+                    "description": "Amount in cents"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "BRL"
+                    ]
+                  }
+                },
+                "required": [
+                  "description",
+                  "amount",
+                  "currency"
+                ]
+              },
+              "examples": {
+                "consultoria": {
+                  "summary": "Consultoria 1 hora",
+                  "value": {
+                    "description": "Consultoria 1 hora",
+                    "amount": 15000,
+                    "currency": "BRL"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "summary": "dependency status",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ok": {
+                    "value": {
+                      "status": "ok",
+                      "checks": {
+                        "postgres": "ok",
+                        "redis": "ok"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "degraded"
+                      ]
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "postgres": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "error"
+                          ]
+                        },
+                        "redis": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "error"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "postgres",
+                        "redis"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "checks"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "degraded",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "postgres_down": {
+                    "value": {
+                      "status": "degraded",
+                      "checks": {
+                        "postgres": "error",
+                        "redis": "ok"
+                      }
+                    }
+                  },
+                  "redis_down": {
+                    "value": {
+                      "status": "degraded",
+                      "checks": {
+                        "postgres": "ok",
+                        "redis": "error"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "degraded"
+                      ]
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "postgres": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "error"
+                          ]
+                        },
+                        "redis": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "error"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "postgres",
+                        "redis"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "checks"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/up": {
+      "get": {
+        "summary": "application health",
+        "responses": {
+          "200": {
+            "description": "up",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "up": {
+                    "value": {
+                      "status": "up",
+                      "timestamp": "2026-10-14T21:00:00Z"
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "up"
+                      ]
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "timestamp"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer_auth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
