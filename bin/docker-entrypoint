@@ -10,13 +10,14 @@ if [ "${RAILS_ENV}" != "production" ]; then
 fi
 
 for arg in "$@"; do
-  if [ "${arg}" = "rspec" ]; then
+  if [ "${arg}" = "rspec" ] || [ "${arg}" = "test" ]; then
     RAILS_ENV=test ./bin/rails db:prepare
     break
   fi
 
   if [ "${arg}" = "server" ]; then
     ./bin/rails db:prepare
+    RAILS_ENV=test ./bin/rails db:prepare
     break
   fi
 done

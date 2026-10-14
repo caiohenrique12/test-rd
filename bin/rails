@@ -1,4 +1,15 @@
 #!/usr/bin/env ruby
 APP_PATH = File.expand_path("../config/application", __dir__)
 require_relative "../config/boot"
+
+# `bin/rails test` is the RSpec suite. Minitest stays in the bundle for generators.
+if ARGV.first == "test"
+  ENV["RAILS_ENV"] = "test"
+  spec_args = ARGV.drop(1)
+  spec_args = [ "spec" ] if spec_args.empty?
+
+  require "rspec/core"
+  exit RSpec::Core::Runner.run(spec_args)
+end
+
 require "rails/commands"
